@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bosicc.nfc.utils.NdefRecordCreator;
 
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -26,6 +27,8 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
         NfcAdapter.OnNdefPushCompleteCallback {
 
     private static final String TAG = "BeamActivity";
+    private static final String mimeType = "application/vnd.com.bosicc.nfc.beam";
+    private static final String defaultApp = "com.bosicc.nfc";
 
     NfcAdapter mNfcAdapter;
     TextView infoText;
@@ -57,12 +60,11 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
 
         mPendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, BeamActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mNdefPushMessage = new NdefMessage(new NdefRecord[] { newTextRecord(
+        mNdefPushMessage = new NdefMessage(new NdefRecord[] { NdefRecordCreator.createTextRecord(
                 "Message from NFC Reader :-)", Locale.ENGLISH, true) });
 
         //mNfcAdapter.setNdefPushMessage(mNdefPushMessage, MainActivity.this);
     }
-
 
     @Override
     public void onResume() {
@@ -81,48 +83,25 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
         super.onPause();
     }
 
-    private NdefRecord newTextRecord(String text, Locale locale, boolean encodeInUtf8) {
-        byte[] langBytes = locale.getLanguage().getBytes(Charset.forName("US-ASCII"));
-
-        Charset utfEncoding = encodeInUtf8 ? Charset.forName("UTF-8") : Charset.forName("UTF-16");
-        byte[] textBytes = text.getBytes(utfEncoding);
-
-        int utfBit = encodeInUtf8 ? 0 : (1 << 7);
-        char status = (char) (utfBit + langBytes.length);
-
-        byte[] data = new byte[1 + langBytes.length + textBytes.length];
-        data[0] = (byte) status;
-        System.arraycopy(langBytes, 0, data, 1, langBytes.length);
-        System.arraycopy(textBytes, 0, data, 1 + langBytes.length, textBytes.length);
-
-        return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], data);
-    }
-
-
     /**
      * Implementation for the CreateNdefMessageCallback interface
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        Time time = new Time();
-        time.setToNow();
-        String text = ("Message over the Android Beam! \n" +
-                "Second device time: " + time.format("%H:%M:%S") + "\n [" +
-                editText.getText().toString() + "]");
+        String text = editText.getText().toString();
 
-        NdefMessage msg = new NdefMessage(NdefRecord.createMime(
-                "application/com.bosicc.nfc.beam", text.getBytes())
-                /**
-                 * The Android Application Record (AAR) is commented out. When a device
-                 * receives a push with an AAR in it, the application specified in the AAR
-                 * is guaranteed to run. The AAR overrides the tag dispatch system.
-                 * You can add it back in to guarantee that this
-                 * activity starts when receiving a beamed message. For now, this code
-                 * uses the tag dispatch system.
-                 */
-                ,NdefRecord.createApplicationRecord("com.bosicc.nfc.beam")
-        );
+        NdefRecord record = NdefRecordCreator.getMime(mimeType, text);
+        /**
+         * The Android Application Record (AAR) is commented out. When a device
+         * receives a push with an AAR in it, the application specified in the AAR
+         * is guaranteed to run. The AAR overrides the tag dispatch system.
+         * You can add it back in to guarantee that this
+         * activity starts when receiving a beamed message. For now, this code
+         * uses the tag dispatch system.
+         */
+        //NdefMessage msg = new NdefMessage(record);
+        NdefMessage msg = new NdefMessage(record, NdefRecord.createApplicationRecord(defaultApp));
         Log.i(TAG, "createNdefMessage() [text=" + text + "]");
         return msg;
     }
@@ -151,7 +130,7 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
 
     @Override
     public void onNewIntent(Intent intent) {
-        Log.i(TAG, "onNewIntent() [getAction=" + intent.getAction() + "]");
+        Log.i(TAG, "onNewIntent() [getAction=" + intent.getAction() + ",type=" + intent.getType() + "]");
         setIntent(intent);
     }
 

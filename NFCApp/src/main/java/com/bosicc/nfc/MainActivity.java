@@ -80,7 +80,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onNewIntent(Intent intent) {
-        Log.i(TAG, "onNewIntent() [getAction=" + intent.getAction() + "]");
+        Log.i(TAG, "onNewIntent() [getAction=" + intent.getAction() + ",type=" + intent.getType() + "]");
+        if (intent.getAction().equals("android.intent.action.MAIN")) {
+            //startActivity(intent);
+            Log.i(TAG, "onNewIntent() [getScheme=" + intent.getScheme() + ",getPackage=" + intent.getPackage() + "]");
+        }
         setIntent(intent);
     }
 
@@ -266,6 +270,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnBeam:
+                startActivity(new Intent(this, BeamActivity.class));
                 break;
             case R.id.btnClean:
                 break;

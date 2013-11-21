@@ -33,7 +33,7 @@ public class NdefRecordCreator {
      * @param mimeData
      * @return
      */
-    public static NdefRecord getAbsoluteURI(String mimeType, String mimeData) {
+    public static NdefRecord getMime(String mimeType, String mimeData) {
         NdefRecord mimeRecord = NdefRecord.createMime(mimeType,
                 mimeData.getBytes(Charset.forName("US-ASCII")));
         return mimeRecord;
