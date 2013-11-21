@@ -38,7 +38,7 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_beam);
 
         infoText = (TextView) findViewById(R.id.textInfo);
         editText = (EditText) findViewById(R.id.editText);

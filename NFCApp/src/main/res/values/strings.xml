@@ -5,5 +5,15 @@
     <string name="tag_reader">NFC TAG Reader</string>
     <string name="android_beam">Android Beam</string>
     <string name="action_settings">Settings</string>
+    <string name="nfc_not_available">NFC is not available on this device. Sorry ;-(</string>
+    <string name="nfc_available">NFC is available on this device!\nWaiting for NFC Tag...</string>
+
+    <string name="nfc_read">Ready to read, touch the NFC tag...</string>
+    <string name="nfc_write">Ready to write data, touch the NFC tag...</string>
+
+
+    <string name="btn_clean">Clean</string>
+    <string name="btn_read">Read</string>
+    <string name="btn_write">Write</string>
 
 </resources>

@@ -19,7 +19,7 @@
         <activity
             android:name="com.bosicc.nfc.MainActivity"
             android:label="@string/tag_reader"
-            android:launchMode="singleTop" >
+            android:launchMode="singleInstance" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -53,16 +53,17 @@
         <activity
             android:name="com.bosicc.nfc.BeamActivity"
             android:label="@string/android_beam"
-            android:launchMode="singleTop" >
+            android:launchMode="singleInstance" >
             <intent-filter >
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter >
-            <!--<intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+            <intent-filter >
+                <action android:name="android.intent.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain"/>
-            </intent-filter> -->
+                <data android:mimeType="application/vnd.com.bosicc.nfc.beam"/>
+            </intent-filter >
+
         </activity >
     </application >
 </manifest >

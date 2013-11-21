@@ -16,7 +16,7 @@
         android:textStyle="bold"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="102dp" />
+        android:layout_marginTop="30dp" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,5 +39,26 @@
         android:id="@+id/btnBeam"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_clean"
+        android:id="@+id/btnClean"
+        android:layout_above="@+id/btnBeam"
+        android:layout_alignParentLeft="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_read"
+        android:id="@+id/btnRead"
+        android:layout_above="@+id/btnBeam"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_write"
+        android:id="@+id/btnWrite"
+        android:layout_above="@+id/btnBeam"
         android:layout_alignParentRight="true" />
 </RelativeLayout>

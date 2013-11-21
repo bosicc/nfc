@@ -34,13 +34,17 @@ import android.widget.TextView;
 
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class MainActivity extends Activity  {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
-    NfcAdapter mNfcAdapter;
-    TextView infoText;
-    ProgressBar loader;
+    private NfcAdapter mNfcAdapter;
+    private TextView infoText;
+    private ProgressBar loader;
+
+    private boolean isReading = false;
+    private boolean isWriting = false;
+
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
@@ -54,17 +58,21 @@ public class MainActivity extends Activity  {
         // Check for available NFC Adapter
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
-            infoText.setText("NFC is not available on this device. Sorry ;-<");
+            showMessage(R.string.nfc_not_available);
         } else {
-            infoText.setText("NFC is available on this device!\nWaiting for NFC Tag...");
+            showMessage(R.string.nfc_available);
         }
+        findViewById(R.id.btnBeam).setOnClickListener(this);
+        findViewById(R.id.btnRead).setOnClickListener(this);
+        findViewById(R.id.btnWrite).setOnClickListener(this);
+        findViewById(R.id.btnClean).setOnClickListener(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume() ...");
-        loader.setVisibility(View.VISIBLE);
+        showLoading(false);
         Intent intent = getIntent();
         /*Parse intent data*/
         resolveIntent(intent);
@@ -115,7 +123,7 @@ public class MainActivity extends Activity  {
                     text += new String(msgs[i].getRecords()[0].getPayload());
                     Log.i(TAG, "resolveIntent() [msgs("+i+")=" + msgs[i] + "]");
                 }
-                infoText.setText(text);
+                showMessage(text);
             } else {
                 // Unknown tag type
                 byte[] empty = new byte[0];
@@ -126,9 +134,9 @@ public class MainActivity extends Activity  {
                 String info = dumpTagData(tag);
                 Log.i(TAG, "onNewIntent() [id=" + getHex(id) + "]");
                 Log.d(TAG, "onNewIntent() [info=" + info + "]");
-                infoText.setText(info);
+                showMessage(info);
             }
-            loader.setVisibility(View.INVISIBLE);
+            showLoading(false);
         }
     }
 
@@ -252,5 +260,37 @@ public class MainActivity extends Activity  {
             factor *= 256l;
         }
         return result;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnBeam:
+                break;
+            case R.id.btnClean:
+                break;
+            case R.id.btnRead:
+                showMessage(R.string.nfc_read);
+                showLoading(true);
+                isReading = true;
+                break;
+            case R.id.btnWrite:
+                showMessage(R.string.nfc_read);
+                showLoading(true);
+                isWriting = true;
+                break;
+        }
+    }
+
+    private void showLoading(boolean isShow) {
+        loader.setVisibility(isShow ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void showMessage(String text) {
+        infoText.setText(text);
+    }
+
+    private void showMessage(int stringResourceId) {
+        infoText.setText(stringResourceId);
     }
 }
