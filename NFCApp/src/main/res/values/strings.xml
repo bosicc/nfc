@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">UAmobile 2013 </string>
+    <string name="tag_reader">NFC TAG Reader</string>
+    <string name="android_beam">Android Beam</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

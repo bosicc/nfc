@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.bosicc.nfc"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="18" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.bosicc.nfc.MainActivity"
+            android:label="@string/tag_reader"
+            android:launchMode="singleTop" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter >
+            <!-- The basic way the tag dispatch system works is as follows:
+            1. Try to start an Activity with the intent that was created by the tag dispatch system when parsing the NFC tag (either ACTION_NDEF_DISCOVERED or ACTION_TECH_DISCOVERED).
+            2. If no activities filter for that intent, try to start an Activity with the next lowest priority intent (either ACTION_TECH_DISCOVERED or ACTION_TAG_DISCOVERED) until an application filters for the intent or until the tag dispatch system tries all possible intents.
+            3. If no applications filter for any of the intents, do nothing.
+            -->
+            <!-- If tag has data for example plain text than Activity handle it.
+                 If data mimeType not set we don't handle event
+             -->
+            <intent-filter >
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter >
+            <!-- Show popup for app selection when Application closed -->
+            <intent-filter >
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter >
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/filter" />
+            <!-- Don't get callback for Tags with NDEF messages -->
+            <intent-filter >
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+            </intent-filter >
+        </activity >
+        <activity
+            android:name="com.bosicc.nfc.BeamActivity"
+            android:label="@string/android_beam"
+            android:launchMode="singleTop" >
+            <intent-filter >
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter >
+            <!--<intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain"/>
+            </intent-filter> -->
+        </activity >
+    </application >
+</manifest >
