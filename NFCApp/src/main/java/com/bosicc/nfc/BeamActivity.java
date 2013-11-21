@@ -30,9 +30,10 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
     private static final String mimeType = "application/vnd.com.bosicc.nfc.beam";
     private static final String defaultApp = "com.bosicc.nfc";
 
-    NfcAdapter mNfcAdapter;
-    TextView infoText;
-    EditText editText;
+    private NfcAdapter mNfcAdapter;
+    private PendingIntent mPendingIntent;
+    private TextView infoText;
+    private EditText editText;
     private static final int MESSAGE_SENT = 1;
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -56,12 +57,18 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
             infoText.setText("NFC is available on this device !");
         }
 
+        /* Prepare pending intent to handle incoming NDEF message over the beam */
+        mPendingIntent = PendingIntent.getActivity(this, 0,
+                        new Intent(this, BeamActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume() ...");
+        mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
+
 
         Intent intent = getIntent();
         /*Parse intent data*/
@@ -71,6 +78,7 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
     @Override
     protected void onPause() {
         super.onPause();
+        mNfcAdapter.disableForegroundDispatch(this);
     }
 
     /**

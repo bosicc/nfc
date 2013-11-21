@@ -61,10 +61,10 @@ public class DemoForegroundDispatchActivity extends Activity {
 
 
         mPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, BeamActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+                new Intent(this, DemoForegroundDispatchActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         mNdefPushMessage = new NdefMessage(new NdefRecord[] { NdefRecordCreator.createTextRecord(
                 "Message from NFC Reader :-)", Locale.ENGLISH, true) });
-        //mNfcAdapter.setNdefPushMessage(mNdefPushMessage, DemoForegroundDispatchActivity.this);
+        mNfcAdapter.setNdefPushMessage(mNdefPushMessage, DemoForegroundDispatchActivity.this);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class DemoForegroundDispatchActivity extends Activity {
 //        }
 //        intentFiltersArray = new IntentFilter[] {ndef, };
 
-        //mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
+        mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
         showLoading(true);
     }
 

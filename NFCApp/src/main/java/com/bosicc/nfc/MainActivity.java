@@ -75,13 +75,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.btnWrite).setOnClickListener(this);
         findViewById(R.id.btnClean).setOnClickListener(this);
         findViewById(R.id.btnDemo).setOnClickListener(this);
-
-        mPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, BeamActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mNdefPushMessage = new NdefMessage(new NdefRecord[] { NdefRecordCreator.createTextRecord(
-                "Message from NFC Reader :-)", Locale.ENGLISH, true) });
-
-        mNfcAdapter.setNdefPushMessage(mNdefPushMessage, MainActivity.this);
     }
 
     @Override
@@ -98,7 +91,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onNewIntent(Intent intent) {
         Log.i(TAG, "onNewIntent() [getAction=" + intent.getAction() + ",type=" + intent.getType() + "]");
         if (intent.getAction().equals("android.intent.action.MAIN")) {
-            //startActivity(intent);
+            showMessage(R.string.nfc_read);
+            showLoading(true);
             Log.i(TAG, "onNewIntent() [getScheme=" + intent.getScheme() + ",getPackage=" + intent.getPackage() + "]");
         }
         setIntent(intent);
@@ -299,7 +293,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 isReading = true;
                 break;
             case R.id.btnWrite:
-                showMessage(R.string.nfc_read);
+                showMessage(R.string.nfc_write);
                 showLoading(true);
                 isWriting = true;
                 break;
