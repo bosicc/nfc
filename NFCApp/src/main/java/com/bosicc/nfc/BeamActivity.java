@@ -34,8 +34,6 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
     TextView infoText;
     EditText editText;
     private static final int MESSAGE_SENT = 1;
-    private PendingIntent mPendingIntent;
-    private NdefMessage mNdefPushMessage;
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
@@ -58,20 +56,12 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
             infoText.setText("NFC is available on this device !");
         }
 
-        mPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, BeamActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mNdefPushMessage = new NdefMessage(new NdefRecord[] { NdefRecordCreator.createTextRecord(
-                "Message from NFC Reader :-)", Locale.ENGLISH, true) });
-
-        //mNfcAdapter.setNdefPushMessage(mNdefPushMessage, MainActivity.this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume() ...");
-
-        mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
 
         Intent intent = getIntent();
         /*Parse intent data*/

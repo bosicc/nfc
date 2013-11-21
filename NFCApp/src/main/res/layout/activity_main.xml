@@ -39,7 +39,7 @@
         android:id="@+id/btnBeam"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" />
+        android:layout_toLeftOf="@+id/btnDemo" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,4 +61,13 @@
         android:id="@+id/btnWrite"
         android:layout_above="@+id/btnBeam"
         android:layout_alignParentRight="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Message"
+        android:id="@+id/btnDemo"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/btnBeam"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/progressBar" />
 </RelativeLayout>

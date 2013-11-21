@@ -2,8 +2,10 @@ package com.bosicc.nfc;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
@@ -20,6 +22,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.bosicc.nfc.utils.NdefRecordCreator;
+
+import java.util.Locale;
 
 /**
  * Android-powered devices with NFC simultaneously support three main modes of operation:
@@ -37,6 +42,9 @@ import android.widget.TextView;
 public class MainActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
+
+    private PendingIntent mPendingIntent;
+    private NdefMessage mNdefPushMessage;
 
     private NfcAdapter mNfcAdapter;
     private TextView infoText;
@@ -66,6 +74,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.btnRead).setOnClickListener(this);
         findViewById(R.id.btnWrite).setOnClickListener(this);
         findViewById(R.id.btnClean).setOnClickListener(this);
+        findViewById(R.id.btnDemo).setOnClickListener(this);
+
+        mPendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, BeamActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        mNdefPushMessage = new NdefMessage(new NdefRecord[] { NdefRecordCreator.createTextRecord(
+                "Message from NFC Reader :-)", Locale.ENGLISH, true) });
+
+        mNfcAdapter.setNdefPushMessage(mNdefPushMessage, MainActivity.this);
     }
 
     @Override
@@ -271,6 +287,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.btnBeam:
                 startActivity(new Intent(this, BeamActivity.class));
+                break;
+            case R.id.btnDemo:
+                startActivity(new Intent(this, DemoForegroundDispatchActivity.class));
                 break;
             case R.id.btnClean:
                 break;
