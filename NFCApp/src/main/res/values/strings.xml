@@ -9,6 +9,7 @@
     <string name="nfc_not_available">NFC is not available on this device. Sorry ;-(</string>
     <string name="nfc_available">NFC is available on this device!\nWaiting for NFC Tag...</string>
 
+    <string name="nfc_clean">ATENTION! All data will be deleted! Touch the NFC tag...</string>
     <string name="nfc_read">Ready to read, touch the NFC tag...</string>
     <string name="nfc_write">Ready to write data, touch the NFC tag...</string>
 

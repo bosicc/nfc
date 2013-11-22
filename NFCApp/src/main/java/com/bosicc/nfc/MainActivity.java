@@ -10,6 +10,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
 import android.nfc.tech.MifareUltralight;
+import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.NfcA;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import com.bosicc.nfc.utils.MifareUltralightTagTester;
 import com.bosicc.nfc.utils.NdefRecordCreator;
 
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -140,16 +142,46 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
                 || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
 
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (isWriting) {
-                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
                 MifareUltralight mtag = MifareUltralight.get(tag);
-                if (MifareUltralightTagTester.writeTag(tag, "UAmobile 2013")) {
+                if (MifareUltralightTagTester.writeTag(tag, "UAmobile 2013 - Cool!")) {
                     showMessage("Write SUCCESS ;-)");
                 } else {
                     showMessage("Write Failed :-<");
                 }
+                isWriting = false;
             } else if (isClean){
 
+                NdefFormatable formatable=NdefFormatable.get(tag);
+                if (formatable != null) {
+                    try {
+                        formatable.connect();
+                        try {
+                            // NOTE: Don't write NDEF message after format
+                            formatable.format(null);
+                        }
+                        catch (Exception e) {
+                            showMessage("Can't connect to NFC Tag");
+                        }
+                    }
+                    catch (Exception e) {
+                        showMessage("Can't format to NFC Tag");
+                    }
+                    finally {
+                        try {
+                            formatable.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                else {
+                    showMessage("Can't get formatable instance");
+                }
+
+                isClean = false;
             } else {
                 Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
                 NdefMessage[] msgs;
@@ -168,7 +200,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     byte[] id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
                     Parcelable ndef = intent.getParcelableExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
                     Log.i(TAG, "onNewIntent() [ndef=" + ndef + "]");
-                    Parcelable tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                     String info = dumpTagData(tag);
                     Log.i(TAG, "onNewIntent() [id=" + getHex(id) + "]");
                     Log.d(TAG, "onNewIntent() [info=" + info + "]");
@@ -259,6 +290,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 sb.append(" * Mifare Ultralight type: ");
                 sb.append(type);
+                sb.append(" \n* Pages data: [");
+                String data =  MifareUltralightTagTester.readTag(tag);
+                sb.append(data + "]");
             }
         }
 
@@ -311,6 +345,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 startActivity(new Intent(this, DemoForegroundDispatchActivity.class));
                 break;
             case R.id.btnClean:
+                showMessage(R.string.nfc_clean);
+                showLoading(true);
                 isClean = true;
                 break;
             case R.id.btnRead:
