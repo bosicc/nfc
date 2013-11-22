@@ -13,8 +13,10 @@ public class MifareUltralightTagTester {
 
     private static final String TAG = MifareUltralightTagTester.class.getSimpleName();
 
-    public void writeTag(Tag tag, String tagText) {
+    public static boolean writeTag(Tag tag, String tagText) {
+        boolean result = true;
         MifareUltralight ultralight = MifareUltralight.get(tag);
+        if ()
         try {
             ultralight.connect();
             ultralight.writePage(4, "abcd".getBytes(Charset.forName("US-ASCII")));
@@ -23,16 +25,19 @@ public class MifareUltralightTagTester {
             ultralight.writePage(7, "mnop".getBytes(Charset.forName("US-ASCII")));
         } catch (IOException e) {
             Log.e(TAG, "IOException while closing MifareUltralight...", e);
+            result = false;
         } finally {
             try {
                 ultralight.close();
             } catch (IOException e) {
                 Log.e(TAG, "IOException while closing MifareUltralight...", e);
+                result = false;
             }
         }
+        return result;
     }
 
-    public String readTag(Tag tag) {
+    public static String readTag(Tag tag) {
         MifareUltralight mifare = MifareUltralight.get(tag);
         try {
             mifare.connect();

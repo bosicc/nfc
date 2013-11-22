@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.bosicc.nfc.utils.MifareUltralightTagTester;
 import com.bosicc.nfc.utils.NdefRecordCreator;
 
 import java.util.Locale;
@@ -52,6 +53,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private boolean isReading = false;
     private boolean isWriting = false;
+    private boolean isClean = false;
 
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -75,16 +77,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.btnWrite).setOnClickListener(this);
         findViewById(R.id.btnClean).setOnClickListener(this);
         findViewById(R.id.btnDemo).setOnClickListener(this);
+
+        /* Prepare pending intent to handle incoming NDEF message from the Tags it's hiest priority*/
+        mPendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume() ...");
+        mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
         showLoading(false);
         Intent intent = getIntent();
         /*Parse intent data*/
         resolveIntent(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mNfcAdapter.disableForegroundDispatch(this);
     }
 
     @Override
@@ -127,30 +140,42 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
                 || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
 
-            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            NdefMessage[] msgs;
-            if (rawMsgs != null) {
-                msgs = new NdefMessage[rawMsgs.length];
-                String text = "";
-                for (int i = 0; i < rawMsgs.length; i++) {
-                    msgs[i] = (NdefMessage) rawMsgs[i];
-                    text += new String(msgs[i].getRecords()[0].getPayload());
-                    Log.i(TAG, "resolveIntent() [msgs("+i+")=" + msgs[i] + "]");
+            if (isWriting) {
+                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                MifareUltralight mtag = MifareUltralight.get(tag);
+                if (MifareUltralightTagTester.writeTag(tag, "UAmobile 2013")) {
+                    showMessage("Write SUCCESS ;-)");
+                } else {
+                    showMessage("Write Failed :-<");
                 }
-                showMessage(text);
+            } else if (isClean){
+
             } else {
-                // Unknown tag type
-                byte[] empty = new byte[0];
-                byte[] id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
-                Parcelable ndef = intent.getParcelableExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-                Log.i(TAG, "onNewIntent() [ndef=" + ndef + "]");
-                Parcelable tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                String info = dumpTagData(tag);
-                Log.i(TAG, "onNewIntent() [id=" + getHex(id) + "]");
-                Log.d(TAG, "onNewIntent() [info=" + info + "]");
-                showMessage(info);
+                Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                NdefMessage[] msgs;
+                if (rawMsgs != null) {
+                    msgs = new NdefMessage[rawMsgs.length];
+                    String text = "";
+                    for (int i = 0; i < rawMsgs.length; i++) {
+                        msgs[i] = (NdefMessage) rawMsgs[i];
+                        text += new String(msgs[i].getRecords()[0].getPayload());
+                        Log.i(TAG, "resolveIntent() [msgs("+i+")=" + msgs[i] + "]");
+                    }
+                    showMessage(text);
+                } else {
+                    // Unknown tag type
+                    byte[] empty = new byte[0];
+                    byte[] id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
+                    Parcelable ndef = intent.getParcelableExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                    Log.i(TAG, "onNewIntent() [ndef=" + ndef + "]");
+                    Parcelable tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                    String info = dumpTagData(tag);
+                    Log.i(TAG, "onNewIntent() [id=" + getHex(id) + "]");
+                    Log.d(TAG, "onNewIntent() [info=" + info + "]");
+                    showMessage(info);
+                }
+                showLoading(false);
             }
-            showLoading(false);
         }
     }
 
@@ -286,6 +311,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 startActivity(new Intent(this, DemoForegroundDispatchActivity.class));
                 break;
             case R.id.btnClean:
+                isClean = true;
                 break;
             case R.id.btnRead:
                 showMessage(R.string.nfc_read);

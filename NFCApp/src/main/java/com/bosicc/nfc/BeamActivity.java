@@ -69,7 +69,6 @@ public class BeamActivity extends Activity implements NfcAdapter.CreateNdefMessa
         Log.i(TAG, "onResume() ...");
         mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
 
-
         Intent intent = getIntent();
         /*Parse intent data*/
         resolveIntent(intent);
