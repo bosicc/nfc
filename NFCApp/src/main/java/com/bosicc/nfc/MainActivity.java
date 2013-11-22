@@ -4,14 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
-import android.nfc.tech.MifareClassic;
-import android.nfc.tech.MifareUltralight;
-import android.nfc.tech.NdefFormatable;
-import android.nfc.tech.NfcA;
+import android.nfc.*;
+import android.nfc.tech.*;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -144,7 +138,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (isWriting) {
-
                 MifareUltralight mtag = MifareUltralight.get(tag);
                 if (MifareUltralightTagTester.writeTag(tag, "UAmobile 2013 - Cool!")) {
                     showMessage("Write SUCCESS ;-)");
@@ -154,33 +147,45 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 isWriting = false;
             } else if (isClean){
 
-                NdefFormatable formatable=NdefFormatable.get(tag);
-                if (formatable != null) {
+                Ndef ndef = Ndef.get(tag);
+                if (ndef != null) {
                     try {
-                        formatable.connect();
+                        ndef.connect();
+                        ndef.writeNdefMessage(null);
+                        showMessage("DONE 1?");
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FormatException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    NdefFormatable format = NdefFormatable.get(tag);
+                    if (format != null) {
                         try {
                             // NOTE: Don't write NDEF message after format
-                            formatable.format(null);
-                        }
-                        catch (Exception e) {
-                            showMessage("Can't connect to NFC Tag");
-                        }
-                    }
-                    catch (Exception e) {
-                        showMessage("Can't format to NFC Tag");
-                    }
-                    finally {
-                        try {
-                            formatable.close();
+                            format.connect();
+                            format.format(null);
+                            showMessage("DONE 2?");
                         } catch (IOException e) {
                             e.printStackTrace();
+                            showMessage("Can't connect to NFC Tag");
+                        } catch (FormatException e) {
+                            e.printStackTrace();
+                            showMessage("Can't format to NFC Tag");
                         }
+                        finally {
+                            try {
+                                format.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                showMessage("Can't close foramtable");
+                            }
+                        }
+                    } else {
+                        showMessage("Can't get formatable instance");
                     }
                 }
-                else {
-                    showMessage("Can't get formatable instance");
-                }
-
                 isClean = false;
             } else {
                 Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
